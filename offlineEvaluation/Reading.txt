@@ -1,0 +1,8 @@
+Towards Preference Relations in Recommender Systems, Brun et al
+Item-Based Collaborative Filtering Recommendation Algorithms, Sarwar et al
+An Algorithmic Framework for Performing Collaborative Filtering, Herlocker et al
+Incremental Matrix Factorization for collaborative filtering, Ott, P.
+Pairwise Preferences Elicitation and Exploitation for Conversational Collaborative Filtering, Bledaite et al
+Recommender Systems Survey, Bobadilla et al
+Towards the Next Generation of Recommender Systems:  A Survey of the State-of-the-Art and Possible Extensions, Adomavicius and Tuzhilin
+Utility-Based Neighbourhood Formation for Efﬁcient and Robust Collaborative Filtering, O'Mahony et al
