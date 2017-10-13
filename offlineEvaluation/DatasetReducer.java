@@ -13,11 +13,14 @@ public class DatasetReducer {
 	public static final int DESIRED_SIZE = 2000;
 	
 	public static void main(String[] args){
+		
+		//Create list of all integers for which a userID exists
 		ArrayList<Integer> userIDs = new ArrayList<Integer>();
 		for (int i=1;i<=TOTAL_NUMBER_OF_USERS;i++){
 			userIDs.add(i);
 		}
 		
+		//randomly remove numbers from the list until 2000 remain
 		int temp;
 		while (userIDs.size()>DESIRED_SIZE){
 			temp = (int) (Math.random()*userIDs.size());
@@ -26,27 +29,29 @@ public class DatasetReducer {
 		
 		
 		try {
+			//create file scanner and printer
 	        File input = new File("ratings.txt");
 	        File output = new File("ratings2k.txt");
 	        Scanner scanner = new Scanner(input);
 	        String line = scanner.nextLine();
-	        int index=0;
-	        
-	        int lastUser = 0;
 	        PrintWriter printer = new PrintWriter(output);
+	        
+	        /* for each line in the ratings.txt, check if the userID of the
+	         * line matches the lowest ID in the list. If it does, add that
+	         * line to the ratings2k.txt file. If it is greater than the lowest
+	         * in the list, remove that value from the list
+	         */
 	        while(scanner.hasNextLine()) {
 	            line = scanner.nextLine()+"\n";
 	            StringTokenizer st = new StringTokenizer(line, "\t");
 				Integer userId = Integer.valueOf(st.nextToken());
-				lastUser = userIDs.get(0);
+				
 				if (userId.equals(userIDs.get(0))){
 					printer.write(line);
-					//System.out.println(userId+", "+userIDs.get(0));
 				}
 				if (userId>userIDs.get(0)){
 					userIDs.remove(0);
 				}
-				index++;
 				
 			}
 	        scanner.close();
