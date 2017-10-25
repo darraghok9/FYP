@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 
 public class DatasetReducer {
 	public static final int TOTAL_NUMBER_OF_USERS = 7120;
-	public static final int DESIRED_SIZE = 2000;
+	public static final int DESIRED_SIZE = 1000;
 	
 	public static void main(String[] args){
 		
@@ -41,7 +41,7 @@ public class DatasetReducer {
 	         * line to the ratings2k.txt file. If it is greater than the lowest
 	         * in the list, remove that value from the list
 	         */
-	        while(scanner.hasNextLine()) {
+	        while(scanner.hasNextLine() && !userIDs.isEmpty()) {
 	            line = scanner.nextLine()+"\n";
 	            StringTokenizer st = new StringTokenizer(line, "\t");
 				Integer userId = Integer.valueOf(st.nextToken());
