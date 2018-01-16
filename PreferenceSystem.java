@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 //	Darragh O'Keeffe
 //	14702321
@@ -13,7 +12,6 @@ public class PreferenceSystem {
 	private DataReader dataReader;
 	private ArrayList<Profile> profiles;
 	private float[][] similarities;
-	private TestProfile testProfile;
 	
 	public PreferenceSystem(DataReader dr){
 		dataReader = dr;
@@ -129,8 +127,7 @@ public class PreferenceSystem {
 		return map;
 	}
 	
-	public float getPredictedPosition(Profile p, int movie){
-		Map<Float,Profile> neighbours = getNeighbours(p,50);
+	public float getPredictedPosition(Profile p, int movie, Map<Float,Profile> neighbours){
 		Set<Float> keys = neighbours.keySet();
 		float numerator = 0, denominator=0;
 		for (Float key: keys){
@@ -147,39 +144,75 @@ public class PreferenceSystem {
 	
 	public int getRecommendation(Profile p){
 		Map<Float,Profile> neighbours = getNeighbours(p,50);
-		Map<Integer,Float> predictedRatingNumerators = new HashMap<Integer,Float>();
-		Map<Integer,Float> predictedRatingDenominators = new HashMap<Integer,Float>();
-		for(Float similarity: neighbours.keySet()){
-			Profile q = neighbours.get(similarity);
-			ArrayList<Integer> itemsRated = q.getItemsRated();
-			ArrayList<Float> ratings = q.getRatings();
-			for (int index=0;index<ratings.size();index++){
-				int testMovie = itemsRated.get(index);
-				float rating = ratings.get(index);
-				if (predictedRatingNumerators.containsKey(testMovie)){
-					float value = predictedRatingNumerators.get(testMovie);
-					value += similarity*rating;
-					predictedRatingNumerators.put(testMovie, value);
-					value = predictedRatingDenominators.get(testMovie);
-					value += similarity;
-					predictedRatingDenominators.put(testMovie, value);
-				} else {
-					predictedRatingNumerators.put(testMovie, rating*similarity);
-					predictedRatingDenominators.put(testMovie, similarity);
-				}
+		Map<Integer,Float> predictedPositions = new HashMap<Integer,Float>();
+		
+		for(Float key: neighbours.keySet()){
+			ArrayList<Integer> itemsRated = neighbours.get(key).getItemsRated();
+			for (Integer movie: itemsRated){
+				predictedPositions.put(movie, getPredictedPosition(p,movie,neighbours));
 			}
 		}
-		float maxRating = 0;
+		float maxPosition = -1;
 		int maxID = 0;
-		float rating;
-		for (Integer movie: predictedRatingNumerators.keySet()){
-			rating = predictedRatingNumerators.get(movie)/predictedRatingDenominators.get(movie);
-			System.out.println(movie+" "+rating);
-			if (rating>maxRating && !p.hasRated(movie)){
-				maxRating = rating;
+		float position;
+		for (Integer movie: predictedPositions.keySet()){
+			position = predictedPositions.get(movie);
+			if (position>maxPosition && !p.hasRated(movie)){
+				maxPosition = position;
 				maxID = movie;
 			}
 		}
 		return maxID;
+	}
+	
+	public static void main(String[] args){
+		DataReader dr = new DataReader(new File("ratingsSample.csv"));
+		PreferenceSystem r = new PreferenceSystem(dr);
+		
+		Profile p = new Profile(0);
+		
+		p.addRating(2,3);
+		p.addRating(29,3);
+		p.addRating(32,3);
+		p.addRating(47,3);
+		p.addRating(50,3);
+		p.addRating(112,3);
+		p.addRating(151,4);
+		p.addRating(223,4);
+		p.addRating(253,4);
+		p.addRating(260,4);
+		p.addRating(293,4);
+		p.addRating(296,4);
+		p.addRating(318,4);
+		p.addRating(337,3);
+		p.addRating(367,3);
+		p.addRating(541,4);
+		p.addRating(589,3);
+		p.addRating(593,3);
+		p.addRating(653,3);
+		p.addRating(919,3);
+		p.addRating(924,3);
+		p.addRating(1009,3);
+		p.addRating(1036,4);
+		p.addRating(1079,4);
+		p.addRating(1080,3);
+		p.addRating(1089,3);
+		p.addRating(1090,4);
+		p.addRating(1097,4);
+		p.addRating(1136,3);
+		p.addRating(1193,3);
+		p.addRating(1196,4);
+		p.addRating(1198,4);
+		p.addRating(1200,4);
+		p.addRating(1201,3);
+		p.addRating(1208,3);
+		p.addRating(1214,4);
+		p.addRating(1215,4);
+		p.addRating(1217,3);
+		p.addRating(1219,4);
+		p.addRating(1222,3);
+
+
+		System.out.println(r.getRecommendation(p));
 	}
 }
