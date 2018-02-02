@@ -34,8 +34,8 @@ public class Profile {
 		return ratings.get(index);
 	}
 	
-	public double getPosition(int itemID){
-		double higher=0, lower=0, equal=-1;
+	public float getPosition(int itemID){
+		float higher=0, lower=0, equal=-1;
 		float itemRating = ratings.get(items.indexOf(itemID));
 		for (int index=0;index<ratings.size();index++){
 			int comparison = Float.compare(itemRating,ratings.get(index));
@@ -101,9 +101,53 @@ public class Profile {
 		return similarity;
 	}
 	
-	public ArrayList<Integer> getCommonItems(Profile q){
-		// TODO
-		return null;
+	public ArrayList<Float> getRatingsFor(ArrayList<Integer> movies){
+		ArrayList<Float> ratingsFor = new ArrayList<Float>();
+		int i=0, j=0;
+		while (i<items.size() && j<movies.size()){
+			if (items.get(i)>movies.get(j)){
+				j++;
+			} else {
+				if (items.get(i)<movies.get(j)){
+					i++;
+				} else {
+					ratingsFor.add(ratings.get(i));
+					i++;
+					j++;
+				}
+			}
+		}
+		return ratingsFor;
+	}
+	
+	public int size(){
+		return items.size();
+	}
+	
+	public int numberOfMoviesRated(ArrayList<Movie> movies){
+		int i=0, j=0, count=0;
+		while (i<items.size() && j<movies.size()){
+			if (items.get(i)>movies.get(j).getID()){
+				j++;
+			} else {
+				if (items.get(i)<movies.get(j).getID()){
+					i++;
+				} else {
+					count++;
+					i++;
+					j++;
+				}
+			}
+		}
+		return count;
+	}
+	
+	public String toRatingString(){
+		String s = "";
+		for (int index=0;index<items.size();index++){
+			s += (ID+","+items.get(index)+","+ratings.get(index)+"\n");
+		}
+		return s;
 	}
 	
 	public static void main(String[] args){
@@ -129,7 +173,7 @@ public class Profile {
 		p.addRating(18, 4);
 		p.addRating(19, 3);
 		p.addRating(20, 2);
-		System.out.println(p.computeMeanRating());
+		System.out.println(p.toString());
 	}
 }
 

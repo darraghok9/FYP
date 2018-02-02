@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -19,7 +20,7 @@ public class DataReader {
 		this.input = input;
 	}
 	
-	public ArrayList<Profile> getProfiles(){
+	public ArrayList<Profile> getProfiles(File input){
 		ArrayList<Profile> profiles = new ArrayList<Profile>();
 		try {
 			Scanner scanner = new Scanner(input);
@@ -59,7 +60,7 @@ public class DataReader {
 		return profiles;
 	}
 	
-	public ArrayList<Movie> getMovieList(){
+	public ArrayList<Movie> getMovies(File input){
 		ArrayList<Movie> movies = new ArrayList<Movie>();
 				
 		try {
@@ -100,61 +101,89 @@ public class DataReader {
 		return movies;
 	}
 	
-	public void orderByMovieID(File output){
+	public ArrayList<Preference> getTestPreferences(File input){
+		File testMovies = new File("testPairs.csv");
+		File movieDetails = new File("movies.csv");
+		ArrayList<Movie> movies = new ArrayList<Movie>();
+		ArrayList<Preference> preferences = new ArrayList<Preference>();
+		ArrayList<Integer> movieIDs = new ArrayList<Integer>();
+		try {
+			Scanner scanner = new Scanner(testMovies);
+			String line = scanner.nextLine();
+			StringTokenizer st;
+			while (scanner.hasNextLine()){
+				line = scanner.nextLine();
+				st = new StringTokenizer(line, ",");
+				movieIDs.add(Integer.valueOf(st.nextToken()));
+				movieIDs.add(Integer.valueOf(st.nextToken()));
+			}
+			scanner.close();
+			scanner = new Scanner(movieDetails, "UTF-8");
+			line = scanner.nextLine();
+			int movieID;
+			while (scanner.hasNextLine()){
+				line = scanner.nextLine();
+				st = new StringTokenizer(line);
+				int length = 0;
+				String temp = st.nextToken(",");
+				length += (temp.length()+1);
+				movieID = Integer.valueOf(temp);
+				if (movieIDs.contains(movieID)){
+					temp = st.nextToken(",");
+					length += (temp.length()+1);
+					int IMDBid = Integer.valueOf(temp);
+					
+					temp = st.nextToken(",");
+					length += (temp.length()+1);
+					int TMDBid = Integer.valueOf(temp);
+					
+					temp = st.nextToken(",");
+					length += (temp.length()+1);
+					
+					String name = line.substring(length);
+					length = 0;
+					movies.add(new Movie(movieID, IMDBid, TMDBid, name));
+				}
+			}
+			for (int index=0;index<movieIDs.size();index+=2){
+				Movie a = new Movie(0), b= new Movie(0);
+				for (Movie m: movies){
+					if (m.getID()==movieIDs.get(index)){
+						a = m;
+					}
+					if (m.getID()==movieIDs.get(index+1)){
+						b = m;
+					}
+				}
+				preferences.add(new Preference(a, b, (byte) 0));
+			}
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Could not open file. Check name and location are correct.");
+		}
+		return preferences;
+	}
+	
+	public void orderByMovieID(ArrayList<Profile> profiles, File output){
 		Movie[] movies = new Movie[TOTAL_MOVIES];
 		for (int i=0;i<=TOTAL_MOVIES;i++){
 			movies[i] = new Movie(i);
 		}
-		try {
-			Scanner scanner = new Scanner(input);
-			String line = scanner.nextLine();
-			line = scanner.nextLine();
-			StringTokenizer st = new StringTokenizer(line, ",");
-			
-			int userID, itemID;
-			float rating;
-			
-			userID = Integer.valueOf(st.nextToken());
-			itemID = Integer.valueOf(st.nextToken());
-			rating = Float.valueOf(st.nextToken());
-			
-			movies[itemID].addRating(userID, rating);
-			
-			while (scanner.hasNextLine()){
-				line = scanner.nextLine();
-				st = new StringTokenizer(line, ",");
-				userID = Integer.valueOf(st.nextToken());
-				itemID = Integer.valueOf(st.nextToken());
-				rating = Float.valueOf(st.nextToken());
-				
-				movies[itemID].addRating(userID, rating);
-				
+		for (Profile p: profiles){
+			ArrayList<Integer> moviesRated = p.getItemsRated();
+			ArrayList<Float> ratings = p.getRatings();
+			int userID = p.getID();
+			for (int index=0;index<moviesRated.size();index++){
+				movies[moviesRated.get(index)].addRating(userID, ratings.get(index));
 			}
-			scanner.close();
-			
-			
-		    PrintWriter printer = new PrintWriter(output);
-		    printer.write("userId,movieId,rating\n");
-		    
-		    for (int i=0;i<=TOTAL_MOVIES;i++){
-		    	ArrayList<Integer> users = movies[i].getUsersWhoRated();
-		    	ArrayList<Float> ratings = movies[i].getRatings();
-		    	for (int j=0;j<users.size();j++){
-		    		printer.write(users.get(j)+","+i+","+ratings.get(j)+"\n");
-		    	}
-		    }
-			
-			printer.close();
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.out.println("Could not open file. Check file name and location are correct");
 		}
+		writeMovies(new ArrayList<>(Arrays.asList(movies)), output, true);
 	}
 	
-	public void createRandomProfileSample(File output, int N){
+	public ArrayList<Integer> createRandomIDSample(int N){
 		if (N<=0){
-			return;
+			return null;
 		}
 		//Create list of all integers for which a userID exists
 		ArrayList<Integer> userIDs = new ArrayList<Integer>();
@@ -168,35 +197,27 @@ public class DataReader {
 			temp = (int) (Math.random()*userIDs.size());
 			userIDs.remove(temp);
 		}
-		
-		try {
-			Scanner scanner = new Scanner(input);
-			PrintWriter printer = new PrintWriter(output);
-			String line = scanner.nextLine();
-			printer.write(line+"\n");
-			int userID, testID=userIDs.get(0);
-			userIDs.remove(0);
-			StringTokenizer st;
-			
-			while(scanner.hasNextLine()){
-				line = scanner.nextLine();
-				st = new StringTokenizer(line, ",");
-				userID = Integer.valueOf(st.nextToken());
-				if (userID==testID){
-					printer.write(line+"\n");
-				}
-				if (userID>testID && !userIDs.isEmpty()){
-					testID = userIDs.get(0);
-					userIDs.remove(0);
-					
+		return userIDs;
+	}
+	
+	public void createRandomProfileSample(ArrayList<Profile> profiles, File output, int N){
+		ArrayList<Integer> userIDs = createRandomIDSample(N);
+		ArrayList<Profile> randomProfiles = new ArrayList<Profile>();
+		int i=0, j=0;
+		while (i<profiles.size() && j<userIDs.size()){
+			if (profiles.get(i).getID()>userIDs.get(j)){
+				j++;
+			} else {
+				if (profiles.get(i).getID()<userIDs.get(j)){
+					i++;
+				} else {
+					randomProfiles.add(profiles.get(i));
+					i++;
+					j++;
 				}
 			}
-			scanner.close();
-			printer.close();
-		} catch (FileNotFoundException e){
-			e.printStackTrace();
-			System.out.println("Could not open file. Check file name and location are correct");
 		}
+		writeProfiles(randomProfiles, output);
 	}
 	
 	public void computeRatingVariance(ArrayList<Movie> movies, File output, int threshold, int size){
@@ -373,57 +394,7 @@ public class DataReader {
 		}
 	}
 	
-	public ArrayList<Movie> getTestMovies(){
-		File testMovies = new File("testMovies.csv");
-		File movieDetails = new File("movies.csv");
-		ArrayList<Movie> movies = new ArrayList<Movie>();
-		ArrayList<Integer> movieIDs = new ArrayList<Integer>();
-		try {
-			Scanner scanner = new Scanner(testMovies);
-			String line = scanner.nextLine();
-			StringTokenizer st;
-			while (scanner.hasNextLine()){
-				line = scanner.nextLine();
-				st = new StringTokenizer(line, ",");
-				movieIDs.add(Integer.valueOf(st.nextToken()));
-			}
-			
-			scanner.close();
-			scanner = new Scanner(movieDetails, "UTF-8");
-			line = scanner.nextLine();
-			int movieID;
-			while (scanner.hasNextLine()){
-				line = scanner.nextLine();
-				st = new StringTokenizer(line);
-				int length = 0;
-				String temp = st.nextToken(",");
-				length += (temp.length()+1);
-				movieID = Integer.valueOf(temp);
-				if (movieIDs.contains(movieID)){
-					temp = st.nextToken(",");
-					length += (temp.length()+1);
-					int IMDBid = Integer.valueOf(temp);
-					
-					temp = st.nextToken(",");
-					length += (temp.length()+1);
-					int TMDBid = Integer.valueOf(temp);
-					
-					temp = st.nextToken(",");
-					length += (temp.length()+1);
-					
-					String name = line.substring(length);
-					length = 0;
-					movies.add(new Movie(movieID, IMDBid, TMDBid, name));
-				}
-			}
-			scanner.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return movies;
-	}
-	
+		
 	
 	public ArrayList<Preference> getTestPreferences(){
 		File testMovies = new File("testPairs.csv");
@@ -483,16 +454,79 @@ public class DataReader {
 			}
 			scanner.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("Could not open file. Check name and location are correct.");
 		}
 		return preferences;
 	}
 	
+	public ArrayList<Profile> profilesWhichRated(ArrayList<Profile> profiles, ArrayList<Movie> movies, int threshold){
+		ArrayList<Profile> testProfiles = new ArrayList<Profile>();
+		for (Profile p: profiles){
+			if (p.numberOfMoviesRated(movies)>=threshold){
+				testProfiles.add(p);
+			}
+		}
+		return testProfiles;
+	}
+	
+	public void writeProfiles(ArrayList<Profile> profiles, File output){
+		try {
+			PrintWriter printer = new PrintWriter(output);
+			printer.write("userId,movieId,rating\n");
+		    for (Profile p: profiles){
+		    	printer.write(p.toRatingString());
+		    }
+			printer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Could not open file. Check name and location are correct.");
+		}
+	}
+	
+	public void writeMovies(ArrayList<Movie> movies, File output, boolean writeRatings){
+		try {
+			PrintWriter printer = new PrintWriter(output);
+			if (writeRatings){
+				printer.write("userId,movieId,rating\n");
+			} else {
+				
+			}
+		    for (Movie m: movies){
+		    	if (writeRatings){
+		    		printer.write(m.toRatingString());
+				} else {
+					printer.write(m.toString());
+				}
+		    }
+			printer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Could not open file. Check name and location are correct.");
+		}
+	}
+	
+	public void writePreferences(ArrayList<Preference> preferences, File output){
+		try {
+			PrintWriter printer = new PrintWriter(output);
+			printer.write("movieId,movieId\n");
+		    for (Preference p: preferences){
+		    	printer.write(p.getItemA().getID()+","+p.getItemB().getID()+"\n");
+		    }
+			printer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Could not open file. Check name and location are correct.");
+		}
+	}
+	
 	public static void main(String[] args){
 		DataReader dr = new DataReader(new File("ratings.csv"));
-		dr.createRandomProfileSample(new File("ratingsSample.csv"), 500);
-		
+		ArrayList<Profile> profiles = dr.getProfiles(new File("ratings.csv"));
+		ArrayList<Movie> movies = dr.getMovies(new File("testMovies.csv"));
+		ArrayList<Profile> testProfiles = dr.profilesWhichRated(profiles, movies, 50);
+		System.out.println(testProfiles.size());
+		dr.writeProfiles(testProfiles, new File("testProfiles.csv"));
 	}
 	
 }		

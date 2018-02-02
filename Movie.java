@@ -95,7 +95,40 @@ public class Movie {
 	public String toString(){
 		return (ID+" "+name);
 	}
-		
+	
+	public String toRatingString(){
+		String s = "";
+		for (int index=0;index<users.size();index++){
+			s += (ID+","+users.get(index)+","+ratings.get(index)+"\n");
+		}
+		return s;
+	}
+	
+	public static void main(String[] args){
+		Movie p = new Movie(1);
+		p.addRating(0, 1);
+		p.addRating(1, 2);
+		p.addRating(2, 5);
+		p.addRating(3, 3);
+		p.addRating(4, 4);
+		p.addRating(5, 4);
+		p.addRating(6, 3);
+		p.addRating(7, 3);
+		p.addRating(8, 5);
+		p.addRating(9, 2);
+		p.addRating(10, 4);
+		p.addRating(11, 3);
+		p.addRating(12, 5);
+		p.addRating(13, 3);
+		p.addRating(14, 3);
+		p.addRating(15, 2);
+		p.addRating(16, 1);
+		p.addRating(17, 4);
+		p.addRating(18, 4);
+		p.addRating(19, 3);
+		p.addRating(20, 2);
+		System.out.println(p.toRatingString());
+	}	
 }
 
 

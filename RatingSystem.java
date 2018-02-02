@@ -9,13 +9,11 @@ import java.util.Set;
 //	16 Jan 2018
 
 public class RatingSystem {
-	private DataReader dataReader;
 	private ArrayList<Profile> profiles;
 	private float[][] similarities;
 	
-	public RatingSystem(DataReader dr){
-		dataReader = dr;
-		profiles = dr.getProfiles();
+	public RatingSystem(ArrayList<Profile> profiles){
+		this.profiles = profiles;
 		similarities = new float[profiles.size()][profiles.size()];
 	}
 	
@@ -151,50 +149,13 @@ public class RatingSystem {
 	
 	public static void main(String[] args){
 		DataReader dr = new DataReader(new File("ratingsSample.csv"));
-		RatingSystem r = new RatingSystem(dr);
+		RatingSystem r = new RatingSystem(dr.getProfiles(new File("ratingsSample.csv")));
 		
 		Profile p = new Profile(0);
 		
-		p.addRating(2,3);
-		p.addRating(29,3);
-		p.addRating(32,3);
-		p.addRating(47,3);
-		p.addRating(50,3);
-		p.addRating(112,3);
-		p.addRating(151,4);
-		p.addRating(223,4);
-		p.addRating(253,4);
-		p.addRating(260,4);
-		p.addRating(293,4);
-		p.addRating(296,4);
-		p.addRating(318,4);
-		p.addRating(337,3);
-		p.addRating(367,3);
-		p.addRating(541,4);
-		p.addRating(589,3);
-		p.addRating(593,3);
-		p.addRating(653,3);
-		p.addRating(919,3);
-		p.addRating(924,3);
-		p.addRating(1009,3);
-		p.addRating(1036,4);
-		p.addRating(1079,4);
-		p.addRating(1080,3);
-		p.addRating(1089,3);
-		p.addRating(1090,4);
-		p.addRating(1097,4);
-		p.addRating(1136,3);
-		p.addRating(1193,3);
-		p.addRating(1196,4);
-		p.addRating(1198,4);
-		p.addRating(1200,4);
-		p.addRating(1201,3);
-		p.addRating(1208,3);
-		p.addRating(1214,4);
-		p.addRating(1215,4);
-		p.addRating(1217,3);
-		p.addRating(1219,4);
-		p.addRating(1222,3);
+		p.addRating(86332,1);
+		p.addRating(106072,1);
+		
 
 		System.out.println(r.getRecommendation(p));
 	}
