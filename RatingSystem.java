@@ -18,27 +18,13 @@ public class RatingSystem {
 	}
 	
 	public float computeSimilarity(Profile a, Profile b){
-		ArrayList<Integer> aItems = a.getItemsRated();
-		ArrayList<Integer> bItems = b.getItemsRated();
-		ArrayList<Float> aRatings = a.getRatings();
-		ArrayList<Float> bRatings = b.getRatings();
+		ArrayList<Integer> commonItems = a.getCommonItems(b);
+		ArrayList<Float> aRatings = a.getRatingsFor(commonItems);
+		ArrayList<Float> bRatings = b.getRatingsFor(commonItems);
 		double numerator=0;
-		int i=0, j=0;
-		int aSize = aItems.size();
-		int bSize = bItems.size();
-				
-		while (i<aSize && j<bSize){
-			if (aItems.get(i)>bItems.get(j)){
-				j++;
-			} else {
-				if (aItems.get(i)<bItems.get(j)){
-					i++;
-				} else {
-					numerator += (aRatings.get(i)*bRatings.get(j));
-					i++;
-					j++;
-				}
-			}
+		
+		for (int i=0;i<commonItems.size();i++){
+			numerator += (aRatings.get(i)*bRatings.get(i));
 		}
 		return (float) (numerator/(a.getRatingDistribution()*b.getRatingDistribution()));
 	}
@@ -122,33 +108,45 @@ public class RatingSystem {
 		return (numerator/denominator);
 	}
 	
-	
-	public int getRecommendation(Profile p){
-		Map<Float,Profile> neighbours = getNeighbours(p,50);
-		Map<Integer,Float> predictedRatings = new HashMap<Integer,Float>();
-		
+	private HashMap<Integer,Float> getPredictedRatings(Profile p, HashMap<Float,Profile> neighbours){
+		HashMap<Integer, Float> predictedRatings = new HashMap<Integer,Float>();
 		for(Float key: neighbours.keySet()){
 			ArrayList<Integer> itemsRated = neighbours.get(key).getItemsRated();
 			for (Integer movie: itemsRated){
 				predictedRatings.put(movie, getPredictedRating(p,movie,neighbours));
 			}
 		}
-		float maxRating = 0;
-		int maxID = 0;
+		return predictedRatings;
+	}
+		
+	public ArrayList<Integer> getTopNRecommendations(Profile p, int N){
+		if (N<=0){
+			return null;
+		}
+		HashMap<Float,Profile> neighbours = getNeighbours(p,50);
+		HashMap<Integer,Float> predictedRatings = getPredictedRatings(p,neighbours);
+		ArrayList<Integer> recommendations = new ArrayList<Integer>();
+		ArrayList<Float> ratings = new ArrayList<Float>();
 		float rating;
+		float minRating = 100;
 		for (Integer movie: predictedRatings.keySet()){
 			rating = predictedRatings.get(movie);
-			if (rating>maxRating && !p.hasRated(movie)){
-				maxRating = rating;
-				maxID = movie;
+			if (ratings.size()<N){
+				if (rating<minRating){
+					minRating = rating;
+				}
+				ratings.add(rating);
+				recommendations.add(movie);
+			}else {
+				
 			}
 		}
-		return maxID;
+		return recommendations;
 	}
 	
 	
 	public static void main(String[] args){
-		DataReader dr = new DataReader(new File("ratingsSample.csv"));
+		DataReader dr = new DataReader();
 		RatingSystem r = new RatingSystem(dr.getProfiles(new File("ratingsSample.csv")));
 		
 		Profile p = new Profile(0);
@@ -156,8 +154,6 @@ public class RatingSystem {
 		p.addRating(86332,1);
 		p.addRating(106072,1);
 		
-
-		System.out.println(r.getRecommendation(p));
 	}
 	
 }

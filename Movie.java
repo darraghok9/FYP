@@ -92,6 +92,48 @@ public class Movie {
 		return TMDBid;
 	}
 	
+	public ArrayList<Integer> getCommonProfiles(Movie b){
+		ArrayList<Integer> bItems = b.getUsersWhoRated();
+		ArrayList<Integer> commonItems = new ArrayList<Integer>();
+		int i=0, j=0;
+		float aSize = this.users.size();
+		float bSize = bItems.size();
+		
+		while (i<aSize && j<bSize){
+			if (this.users.get(i)>bItems.get(j)){
+				j++;
+			} else {
+				if (this.users.get(i)<bItems.get(j)){
+					i++;
+				} else {
+					commonItems.add(this.users.get(i));
+					i++;
+					j++;
+				}
+			}
+		}
+		return commonItems;
+	}
+	
+	public ArrayList<Float> getRatingsFor(ArrayList<Integer> profiles){
+		ArrayList<Float> ratingsFor = new ArrayList<Float>();
+		int i=0, j=0;
+		while (i<users.size() && j<profiles.size()){
+			if (users.get(i)>profiles.get(j)){
+				j++;
+			} else {
+				if (users.get(i)<profiles.get(j)){
+					i++;
+				} else {
+					ratingsFor.add(ratings.get(i));
+					i++;
+					j++;
+				}
+			}
+		}
+		return ratingsFor;
+	}
+	
 	public String toString(){
 		return (ID+" "+name);
 	}

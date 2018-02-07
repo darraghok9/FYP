@@ -142,6 +142,29 @@ public class Profile {
 		return count;
 	}
 	
+	public ArrayList<Integer> getCommonItems(Profile b){
+		ArrayList<Integer> bItems = b.getItemsRated();
+		ArrayList<Integer> commonItems = new ArrayList<Integer>();
+		int i=0, j=0;
+		float aSize = this.items.size();
+		float bSize = bItems.size();
+		
+		while (i<aSize && j<bSize){
+			if (this.items.get(i)>bItems.get(j)){
+				j++;
+			} else {
+				if (this.items.get(i)<bItems.get(j)){
+					i++;
+				} else {
+					commonItems.add(this.items.get(i));
+					i++;
+					j++;
+				}
+			}
+		}
+		return commonItems;
+	}
+	
 	public String toRatingString(){
 		String s = "";
 		for (int index=0;index<items.size();index++){

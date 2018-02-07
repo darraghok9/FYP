@@ -17,32 +17,8 @@ public class PreferenceSystem {
 		similarities = new float[profiles.size()][profiles.size()];
 	}
 	
-	public ArrayList<Integer> getCommonItems(Profile a, Profile b){
-		ArrayList<Integer> aItems = a.getItemsRated();
-		ArrayList<Integer> bItems = b.getItemsRated();
-		ArrayList<Integer> commonItems = new ArrayList<Integer>();
-		int i=0, j=0;
-		float aSize = aItems.size();
-		float bSize = bItems.size();
-		
-		while (i<aSize && j<bSize){
-			if (aItems.get(i)>bItems.get(j)){
-				j++;
-			} else {
-				if (aItems.get(i)<bItems.get(j)){
-					i++;
-				} else {
-					commonItems.add(aItems.get(i));
-					i++;
-					j++;
-				}
-			}
-		}
-		return commonItems;
-	}
-	
 	public float computeSimilarity(Profile a, Profile b){
-		ArrayList<Integer> commonItems = getCommonItems(a,b);
+		ArrayList<Integer> commonItems = a.getCommonItems(b);
 		ArrayList<Float> aRatings = a.getRatingsFor(commonItems);
 		ArrayList<Float> bRatings = b.getRatingsFor(commonItems);
 						
@@ -126,7 +102,7 @@ public class PreferenceSystem {
 		return map;
 	}
 	
-	public float getPredictedPosition(Profile p, int movie, Map<Float,Profile> neighbours){
+	public float getPredictedRating(Profile p, int movie, Map<Float,Profile> neighbours){
 		Set<Float> keys = neighbours.keySet();
 		float numerator = 0, denominator=0;
 		for (Float key: keys){
@@ -148,7 +124,7 @@ public class PreferenceSystem {
 		for(Float key: neighbours.keySet()){
 			ArrayList<Integer> itemsRated = neighbours.get(key).getItemsRated();
 			for (Integer movie: itemsRated){
-				predictedPositions.put(movie, getPredictedPosition(p,movie,neighbours));
+				predictedPositions.put(movie, getPredictedRating(p,movie,neighbours));
 			}
 		}
 		float maxPosition = -1;
@@ -165,7 +141,7 @@ public class PreferenceSystem {
 	}
 	
 	public static void main(String[] args){
-		DataReader dr = new DataReader(new File("ratingSample.csv"));
+		DataReader dr = new DataReader();
 		PreferenceSystem r = new PreferenceSystem(dr.getProfiles(new File("ratingSample.csv")));
 		
 		Profile p = new Profile(0);

@@ -2,7 +2,8 @@
 //	14702321
 //	9 Jan 2018
 
-public class Preference {
+@SuppressWarnings("rawtypes")
+public class Preference implements Comparable {
 	private Movie itemA;
 	private Movie itemB;
 	private byte preference;
@@ -27,5 +28,9 @@ public class Preference {
 	
 	public String toString(){
 		return itemA.toString()+" "+itemB.toString()+" "+preference;
+	}
+
+	public int compareTo(Object o) {
+		return 0;
 	}
 }
