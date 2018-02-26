@@ -1,0 +1,64 @@
+html { 
+  background: url("backgroundImage.png") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+fieldset {
+  max-width:225px;
+  border: solid black thin; 
+  margin: auto;	
+  padding: 2em 2em 2em 2em;
+}
+legend {
+	font-size: 20px;
+	color: red;
+	max-width: 190px;
+}
+label.field{
+	text-align:right;
+	width: 100px;
+	float: left;
+	font-weight: bold;
+	color: Red;
+}
+p {
+	max-width: 90%;
+	margin: auto;
+	align: center;
+}
+a:link, a:visited {
+    background-color: #f44336;
+    color: white;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: auto;
+}
+button {
+	margin: auto;
+}
+table {
+	max-width: 600px;
+	margin: auto;
+}
+div {
+	max-width: 600px;
+	margin: auto;
+}
+form {
+	max-width: 600px;
+	margin: auto;
+}
+tr {
+	max-width: 600px;
+	margin: auto;
+}
+td {
+	padding: 1em 1em 1em 1em;
+}
+div.p{
+	padding: 1em 1em 1em 1em;
+}
