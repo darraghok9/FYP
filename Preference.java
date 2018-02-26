@@ -26,6 +26,10 @@ public class Preference implements Comparable {
 		return preference;
 	}
 	
+	public void setPreference(byte b){
+		this.preference = b;
+	}
+	
 	public String toString(){
 		return itemA.toString()+" "+itemB.toString()+" "+preference;
 	}

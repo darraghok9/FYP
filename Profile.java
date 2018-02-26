@@ -87,20 +87,6 @@ public class Profile {
 		return (sum/ratings.size());
 	}
 	
-	public double computeSimilarity(Profile q){
-		double similarity = 0;
-		for (int index=0;index<items.size();index++){
-			int item = items.get(0);
-			if (q.hasRated(item)){
-				float qRating = q.getRating(item);
-				if (qRating==ratings.get(index)){
-					similarity++;
-				}
-			}
-		}
-		return similarity;
-	}
-	
 	public ArrayList<Float> getRatingsFor(ArrayList<Integer> movies){
 		ArrayList<Float> ratingsFor = new ArrayList<Float>();
 		int i=0, j=0;

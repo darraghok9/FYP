@@ -98,9 +98,7 @@ public class DataReader {
 		return movies;
 	}
 	
-	public ArrayList<Preference> getTestPreferences(File input){
-		File testMovies = new File("testPairs.csv");
-		File movieDetails = new File("movies.csv");
+	public ArrayList<Preference> getTestPreferences(File testMovies, File movieDetails){
 		ArrayList<Movie> movies = new ArrayList<Movie>();
 		ArrayList<Preference> preferences = new ArrayList<Preference>();
 		ArrayList<Integer> movieIDs = new ArrayList<Integer>();
@@ -165,10 +163,9 @@ public class DataReader {
 	public ArrayList<Movie> getMovieDetails(File input){
 		ArrayList<Movie> movies = new ArrayList<Movie>();
 		try {
-			Scanner scanner = new Scanner(input);
+			Scanner scanner = new Scanner(input, "UTF-8");
 			String line = scanner.nextLine();
 			StringTokenizer st;
-			
 			while (scanner.hasNextLine()){
 				line = scanner.nextLine();
 				st = new StringTokenizer(line, ",");
@@ -184,6 +181,7 @@ public class DataReader {
 				temp = st.nextToken();
 				length += (temp.length()+1);
 				int TMDBid = Integer.valueOf(temp);
+
 				
 				temp = st.nextToken();
 				length += (temp.length()+1);
@@ -316,25 +314,34 @@ public class DataReader {
 		}
 		ArrayList<S> o = new ArrayList<S>();
 		ArrayList<T> v = new ArrayList<T>();
-		o.add(objects.get(0));
-		v.add(values.get(0));
-		if (values.get(1).compareTo(v.get(0))>0){
+		if (values.get(0).compareTo(values.get(1))>0){
+			o.add(objects.get(0));
 			o.add(objects.get(1));
+			v.add(values.get(0));
 			v.add(values.get(1));
 		}else{
-			o.add(1,objects.get(1));
-			v.add(1,values.get(1));
+			o.add(objects.get(1));
+			o.add(objects.get(0));
+			v.add(values.get(1));
+			v.add(values.get(0));
 		}
 		for (int i=2;i<objects.size();i++){
 			int size = v.size();
 			T value = values.get(i);
 			if (value.compareTo(v.get(size-1))>0){
 				int k=0;
-				while (k<size){
+				boolean added = false;
+				while (k<size && !added){
 					if (value.compareTo(v.get(k))>0){
 						v.add(k,value);
 						o.add(k,objects.get(i));
+						if (v.size()>N){
+							v.remove(N);
+							o.remove(N);
+						}
+						added = true;
 					}
+					k++;
 				}
 			}else{
 				if (size<N){
@@ -390,6 +397,25 @@ public class DataReader {
 			System.out.println("Could not open file, check file name and location are correct");
 		}	
 		return preferences;
+	}
+	
+	public ArrayList<Integer> getTestMovieIDs(File input){
+		ArrayList<Integer> movies = new ArrayList<Integer>();
+		try {
+			Scanner scanner = new Scanner(input);
+			String line = scanner.nextLine();
+			StringTokenizer st;
+			while (scanner.hasNextLine()){
+				line = scanner.nextLine();
+				st = new StringTokenizer(line, ",");
+				movies.add(Integer.valueOf(st.nextToken()));
+			}
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Could not open file, check file name and location are correct");
+		}	
+		return movies;
 	}
 	
 	public ArrayList<Profile> profilesWhichRated(ArrayList<Profile> profiles, ArrayList<Movie> movies, int threshold){
@@ -454,20 +480,10 @@ public class DataReader {
 	
 	public static void main(String[] args){
 		DataReader dr = new DataReader();
-		ArrayList<Preference> preferences = dr.getTestPreferences(new File("test.csv"));
-		ArrayList<Integer> ids = new ArrayList<Integer>();
-		for (Preference p : preferences){
-			int a = p.getItemA().getID();
-			int b = p.getItemB().getID();
-			if (!ids.contains(a)){
-				ids.add(a);
-			}
-			if (!ids.contains(b)){
-				ids.add(b);
-			}
-			
+		ArrayList<Preference> preferences = dr.getTestPreferences(new File("testPairs.csv"), new File("movieDetails.csv"));
+		for (Preference p: preferences){
+			System.out.println(p);
 		}
-		System.out.println(ids.size());
 	}
 	
 }		
